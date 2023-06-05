@@ -36,6 +36,7 @@ parser.add_argument('--max-memory', help='maximum amount of RAM in GB to be used
 parser.add_argument('--cpu-cores', help='number of CPU cores to use', dest='cpu_cores', type=int, default=max(psutil.cpu_count() / 2, 1))
 parser.add_argument('--gpu-threads', help='number of threads to be use for the GPU', dest='gpu_threads', type=int, default=8)
 parser.add_argument('--gpu-vendor', help='choice your GPU vendor', dest='gpu_vendor', choices=['apple', 'amd', 'intel', 'nvidia'])
+parser.add_argument('--skip-video', help='do not create video', dest='skip_video', action='store_true', default=False)
 
 args = parser.parse_known_args()[0]
 
@@ -209,12 +210,13 @@ def start(preview_callback = None):
         process_video_multi_cores(args.source_img, args.frame_paths)
     else:
         process_video(args.source_img, args.frame_paths)
-    status("creating video...")
-    create_video(video_name, exact_fps, output_dir)
-    status("adding audio...")
-    add_audio(output_dir, target_path, video_name_full, args.keep_frames, args.output_file)
-    save_path = args.output_file if args.output_file else output_dir + "/" + video_name + ".mp4"
-    print("\n\nVideo saved as:", save_path, "\n\n")
+    if not args.skip_video:
+        status("creating video...")
+        create_video(video_name, exact_fps, output_dir)
+        status("adding audio...")
+        add_audio(output_dir, target_path, video_name_full, args.keep_frames, args.output_file)
+        save_path = args.output_file if args.output_file else output_dir + "/" + video_name + ".mp4"
+        print("\n\nVideo saved as:", save_path, "\n\n")
     status("swap successful!")
 
 
